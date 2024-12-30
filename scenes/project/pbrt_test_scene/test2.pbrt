@@ -1,0 +1,40 @@
+Sampler "random" "integer pixelsamples" [500]
+
+Integrator "path"
+Film "image" 
+    "string filename" "output.exr"
+    "integer xresolution" [800]
+    "integer yresolution" [600]
+
+LookAt 0, 0, 10  # eye
+       0 0 0  # look at point
+       0 1 0    # up vector
+
+Camera "perspective" 
+    "float fov" [80]
+
+WorldBegin
+
+
+# Mesh geometry
+AttributeBegin
+  AreaLightSource "diffuse" "rgb L" [ 50 50 50 ]
+  Translate -5 0 0
+  Shape "sphere" "float radius" [2]
+  
+AttributeEnd
+
+AttributeBegin
+    Material "subsurface" "string name" "Marble"
+       	
+    Transform [
+0.70710678118  0.70710678118  0  0
+    0.70710678118  -0.70710678118 0  0
+    0  0 1  0
+    0  0  0  1
+    ]
+    Shape "plymesh" "string filename" "dragon.ply"
+
+AttributeEnd
+
+WorldEnd

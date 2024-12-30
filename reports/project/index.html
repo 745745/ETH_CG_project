@@ -1,0 +1,237 @@
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+**Project Report**
+
+Student Name/-s: Wu Zhanyi(22-737-266)
+
+# Motivational Image
+The top two images are motivational visuals inspired by an animation. They transition from a winter scene to a spring scene.
+<br>
+To align with this year's theme, I combined the two images. The left side depicts a winter scene, while the right shows a spring scene, with two characters standing between these two environments. I want to emphasize that our life is always in between two opposite extremes. Keep going, though the path to other side might be broken, but there always is one.
+<img src="../resources/proposal.png" alt="Motivational image" class="img-responsive">
+<img src="../resources/finalScene/motivation.png" alt="Motivational image" class="img-responsive">
+
+# Selected Features
+
+
+ID      | Short Name                |Points | Features (if required) & Comments
+--------|---------------------------|-------|------------------------------------
+15.3 | Environment Map Emitter | 15 |
+15.4 | Homogeneous Participating Media  | 15 |
+30.2.1 | Subsurface Scattering | 30 | diffusion dipole
+Total || 60 |
+
+
+
+# Feature explaination and validation
+
+## **Environment Map Emitter**
+Environment Map Emitter is used for background.
+<br>
+My environment emitter allows user to give a exr file name and generate corresponding emitter. The emitter supports importance sampling.
+<br>
+The algorithm is same as that in the lecture. Load the file and multiple sin(theta) according to their row. Then compute marginal PDF of each row. At last compute conditional PDF in each row.
+<br>
+
+### Involved files
+These files are involved in this feature:
+* src/envmapper.cpp
+* src/scene.cpp
+* include/nori/scene.h
+
+### importance sampling validation
+I'll first test the importance sampling with several files. These tests are aiming to check whether the probability is proportional to the luminance.
+
+
+    *test 1:*
+<div class="twentytwenty-container">
+    <img src="../resources/envMapping/env_test_origin.png" alt="Reference exr" class="img-responsive">
+    <img src="../resources/envMapping/env_test1.png" alt="Mine sampling point" class="img-responsive">
+</div>
+
+    *test 2:*
+<div class="twentytwenty-container">
+    <img src="../resources/envMapping/env_test2_origin.png" alt="Reference exr" class="img-responsive">
+    <img src="../resources/envMapping/env_test2.png" alt="Mine sampling point" class="img-responsive">
+</div>
+
+    &emsp;As shown in images, the sampling points gather at high luminance places. Especially in second image, there are almost no points in dark shadow and most points are on specular reflection of clock and bulb.
+<br>
+
+### rendering validation
+    I Build a scene with three spheres (mirror, dielectric, and diffuse) and render with a high-resolution EXR image. Result is compared with PBRT.
+<div class="twentytwenty-container">
+    <img src="../resources/envMapping/result_pbrt.png" alt="Reference result" class="img-responsive">
+    <img src="../resources/envMapping/result_mine.png" alt="Mine result" class="img-responsive">
+</div>
+
+    Due to different camera fov computation in PBRT, here the results might be slightly different. But we can obviously see the behavior of environment emitter are the same between two image.
+
+
+
+    ## **Homogeneous Participating Media**
+    Heterogeneous Participating Media is used for water and snow ground.
+<br>
+    ### Medium base class and Homogeneous medium.
+    First I create a Medium class for general medium operations. It contains two operations: transmittance and sample. <font color="red"> Transmittance </font> computes how much energy is lost given travelling distance in the medium.
+<font color="red"> Sample </font> computes how will light travel in the medium. Every medium has a phase function (I use HG phase here). Phase function will help sample the direction of next ray.
+<br>
+<font color="red"> Transmittance </font> is trivial in homogeneous medium. It simply return the $e^{\sigma_{tr}*distance}$.
+<br>
+<font color="red"> Sample </font> first sample a distance $t$. If $t$ does not exceed the max distance that ray can travel in the medium, then scattering happened. Using phase function to sample a outgoing direction and record the scattering position. If $t$ exceeds the max distance,
+it is regarded as a transmittance. Let $t=maxDist$ and ray's direction remains the same. Last generate the next ray and computes transmittance of their $t$.
+<br>
+
+    ### Volume integrator
+    Path_mis from PA4 is not enough for volumetric rendering. I implement a new integrator based on it. It should behave exactly same as path_mis without any medium in the scene.
+<br>
+    At the start of path tracing loop, if the ray is in any medium, sample the next ray. If next ray is scattering or transmittance but do not intersect with any BSDF surface, setup next ray, $throughput\,*=\,transmittance$. If it is scattering, compute the direct lighting of this point.
+<br>
+    If the ray intersects with a BSDF surface, then computation is same as path_mis. The code structure here is following PBRT. The MIS computation is replaced with a sampleLight function. In this function, medium is also be considered. If the direct lighting point is a scattering point, sample phase function instead of BSDF.
+<br>
+
+    ### Other modification
+    In order to set ray's medium correctly, I attach ext_medium and int_medium to every shape. Then if $\cos{w_o} < 0$ then the ray is shooting out of material, medium should be set as ext_medium.
+<br>
+
+    ### Involved files
+    These files are involved in this feature:
+    * include/nori/medium.h
+    * include/nori/shape.h
+    * src/homogeneous.cpp
+    * src/volume.cpp
+
+    ### parameters validation
+    I will compare different setting of medium with PBRT here.
+<div class="twentytwenty-container">
+    <img src="../resources/medium/s_p.png" alt="Reference result" class="img-responsive">
+    <img src="../resources/medium/s_m.png" alt="Mine result" class="img-responsive">
+</div>
+     Then with  $\sigma_s(0.24 0.28 0.21)$  $\sigma_a(0.132 0.17 0.18)$
+<div class="twentytwenty-container">
+    <img src="../resources/medium/a_p.png" alt="Reference result" class="img-responsive">
+    <img src="../resources/medium/a_m.png" alt="Mine result" class="img-responsive">
+</div>
+    With same $\sigma_s(0.24 0.28 0.21)$  $\sigma_a(0.132 0.17 0.18)$ but $g=-0.5$
+<div class="twentytwenty-container">
+    <img src="../resources/medium/g_p.png" alt="Reference result" class="img-responsive">
+    <img src="../resources/medium/g_m.png" alt="Mine result" class="img-responsive">
+</div>
+    
+
+    Medium can also works with BSDF. The left sphere has dielectric surface.
+<div class="twentytwenty-container">
+    <img src="../resources/medium/test_medium_p.png" alt="Reference result" class="img-responsive">
+    <img src="../resources/medium/test_medium_m.png" alt="Mine result" class="img-responsive">
+</div>
+
+
+    ### Effect of parameters
+    Here is a set of balls that changing the parameters of medium.
+<div class="twentytwenty-container">
+    <img src="../resources/medium/param.png" alt="parameters effect" class="img-responsive">
+</div>
+    First row changes $\sigma_a$. Second row changes $g$ and the last row changes $\sigma_s$
+    ## **Subsurface Scattering**
+    Subsurface Scattering is used for leaves and skin.
+<br>
+    ### Reference and assumption
+    The main problem in SSS is how to compute BSSRDF and how to find the next scattering point. Since there're multiple ways to implement, I refer to paper below to finish my SSS:
+    * sampling: King, Alan, et al. "BSSRDF importance sampling." ACM SIGGRAPH 2013 Talks. 2013. 1-1
+    * BSSRDF computing: d’Eon, Eugene. "A better dipole." Eugene d’Eon 14 (2012).
+    * dipole diffusion: Wann Jensen, Henrik, et al. "A practical model for subsurface light transport." Seminal Graphics Papers: Pushing the Boundaries, Volume 2. 2023. 319-326.
+
+    Dipole diffusion makes much assumptions that reduce the $S_d$ term(multi scattering term) to a function that only depends on distance between incident and scattering point.
+    A better dipole simplify the BSSRDF computation. It points out that in the original paper, $S = S_0+S_1+S_d$. We can assume the material is semi-infinite thick. So $S_0$ can be ignored. Then it points out that add $S_1$ term to S will not help improve the performance and even be harmful. So the $S_d$ term is the only term left.
+<br>
+    BSSRDF importance sampling gives a new way to sample the scattering point. The normal point may face problem when the incident point is near a cliff. Then using normal as prob ray's direction has quite low probability to sample those point on the cliff since they are parallel to the normal. It suggests choosing another two tangent as prob ray's direction might help. In my implementation, 50% will choose normal and 25% for tangents.
+<br>
+    The problem I face is how to sample the outgoing direction of scattering point. Most paper concentrate on sampling points but few of them tell how to sample direction. In PBRT, they use computed data to construct a new BSDF to sample the direction. I follow this idea as well. But since I don't know how do they build their new BSDF, I build a BSDF myself. But the results might be different due to the BSDF difference. Since my BSSRDF supports user added BSDF, I'll try two different BSDF to show my assumption about PBRT's BSDF and my result.
+<br>
+
+    ### Involved files
+    These files are involved in this feature:
+    * include/nori/BSSRDF.h
+    * include/nori/shape.h
+    * src/BSSRDF.cpp
+    * src/volume.cpp
+
+
+    ### validation
+    In my opinion, SSS can only happens when the light shoots into material after BSDF. So a transmission BSDF will be a must for BSSRDF. Till now, only dielectric supports this feature. I developed a new BSDF that use albedo to decide ray's direction. The ray diffuse reflect by albedo probability and the remaining refraction into material.
+<br>
+    Here is my result with different BSDF.
+
+<div class="twentytwenty-container">
+    <img src="../resources/BSSRDF/td.png" alt="Mine result with new transDiffuse" class="img-responsive">
+    <img src="../resources/BSSRDF/dielectric.png" alt="Mine result with dielectric" class="img-responsive">
+    <img src="../resources/BSSRDF/ref.png" alt="Reference result" class="img-responsive">
+</div>
+
+    As you can see, dielectric has better fit with PBRT's specular and color behavior. But too much energy comes into material that makes whole sphere bright. In the meanwhile, the transmissDiffuse has similar behavior of lower hemisphere.
+<br>
+    PBRT's BSDF uses parameter called  Specular reflection and Microfacet roughness. I think their BSDF is somehow mixture of dielectric and microfacet. But it is out of this task's range.
+
+    Since PBRT's BSSRDF doesn't suppport user specified BSDF. So the following part I'll use PBRT default BSSRDF setting, which will cause difference. All of them use Skin1 setting $\sigma_{s'}=(0.032, 0.17, 0.48)$,$\sigma_{a}=(0.74, 0.88, 1.01)$
+
+<div class="twentytwenty-container">
+    <img src="../resources/BSSRDF/compareP.png" alt="Reference result" class="img-responsive">
+    <img src="../resources/BSSRDF/compareT.png" alt="Mine result with dielectric" class="img-responsive">
+    <img src="../resources/BSSRDF/compareD.png" alt="Mine result with transmissDiffuse" class="img-responsive">
+    <img src="../resources/BSSRDF/Ddiffuse.png" alt="only diffuse(with highest explosure)" class="img-responsive">
+</div>
+
+Here is result of Marble setting $\sigma_{s'}=(2.19,2.62,3.00)$,$\sigma_{a}=(0.0021,0.0041,0.0071)$.
+<div class="twentytwenty-container">
+    <img src="../resources/BSSRDF/marbleP.png" alt="Reference result" class="img-responsive">
+    <img src="../resources/BSSRDF/marbleT.png" alt="Mine result with dielectric" class="img-responsive">
+    <img src="../resources/BSSRDF/marbleD.png" alt="Mine result with transmissDiffuse" class="img-responsive">
+    <img src="../resources/BSSRDF/marbleDiffuse.png" alt="only diffuse(with highest explosure)" class="img-responsive">
+</div>
+
+    Both two of my BSSRDF has similar behavior of PBRT. TransmissDiffuse is closer to PBRT in Skin setting. Dielectric is closer to PBRT in marble setting. Diffuse result can prove the correctness of my implementation. Without BSSRDF, even with highest explosure, most part of dragon cannot be lit up.
+<br>
+
+
+    ## **Final scene**
+    After validating each feature, here is my final image. The background is using environment emitter. The skull,scarecrow,boy are using BSSRDF. The boy is standing in the water. The water is using homogeneous medium.
+<div class="twentytwenty-container">
+    <img src="../resources/finalScene/scene.png" alt="final result" class="img-responsive">
+</div>
+<br>
+
+    ## **Other functionality**
+    I use python to mix two of exr file toghther. Besides, blender is used to model objects and scene.
+
+    # Feedback
+
+    ...
+
+
+    # Supplementary
+    * This report template uses [Markdeep](https://casual-effects.com/markdeep/), which supports Markdown syntax in HTML file. For example usage, please refer to the [official demo document](https://casual-effects.com/markdeep/features.md.html).
+
+    * LaTeX is also supported for typing mathematical formulas:
+    $$
+    L_o(\mathbf{x}, \omega_o) = \int_{\Omega} L_i(\mathbf{x},\omega_i)\, f(\mathbf{x}, \omega_i, \omega_o)\, |\cos\theta_i|\, \mathrm{d}\omega_i
+    $$
+
+
+
+<!-- Bootstrap core CSS and JavaScript -->
+
+<link href="../resources/offcanvas.css" rel="stylesheet">
+<link href="../resources/twentytwenty.css" rel="stylesheet" type="text/css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="../resources/bootstrap.min.js"></script>
+<script src="../resources/jquery.event.move.js"></script>
+<script src="../resources/jquery.twentytwenty.js"></script>
+
+<!-- Markdeep: -->
+<script>var markdeepOptions = { onLoad: function () { $(".twentytwenty-container").twentytwenty({ default_offset_pct: 0.5, move_slider_on_hover: true }); }, tocStyle: 'none' };</script>
+<script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script>window.alreadyProcessedMarkdeep || (document.body.style.visibility = "visible")</script>

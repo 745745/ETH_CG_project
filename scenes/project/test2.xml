@@ -1,0 +1,58 @@
+<scene>
+	<!-- Independent sample generator, user-selected samples per pixel -->
+	<sampler type="independent">
+		<integer name="sampleCount" value="200"/>
+	</sampler>
+
+	<!-- Use the direct illumination integrator -->
+	<integrator type="path_mis"/>
+
+	<!-- Render the scene as viewed by a perspective camera -->
+	<camera type="perspective">
+		<transform name="toWorld">
+			<lookat target="5,0, 0" 
+			        origin="5, -10, 0"
+			        up="0, 0, 1"/>
+		</transform>
+
+		<!-- Field of view: 80 degrees -->
+		<float name="fov" value="80"/>
+
+		<!-- 1800x1600 pixels -->
+		<integer name="width" value="800"/>
+		<integer name="height" value="600"/>
+	</camera>
+
+	<!-- Illuminate using a point light -->
+	<emitter type="EnvMapper">
+		<string name="envfile" value = "external_image/envmap.exr"/>
+	</emitter>
+
+
+
+	<mesh type="sphere">
+		<point name="center" value="0 0 0" />
+		<float name="radius" value="1" />
+
+		<bsdf type="dielectric"/>
+	</mesh>
+
+
+	<mesh type="sphere">
+		<point name="center" value="5 0 0" />
+		<float name="radius" value="1" />
+
+		<bsdf type="mirror"/>
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="10 0 0" />
+		<float name="radius" value="1" />
+
+				<bsdf type="diffuse">
+			<color name="albedo" value="0.1,0.1,0.1"/>
+		</bsdf>
+	</mesh>
+
+
+</scene>

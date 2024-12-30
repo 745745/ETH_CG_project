@@ -1,0 +1,40 @@
+Sampler "random" "integer pixelsamples" [500]
+
+Integrator "path"
+Film "image" 
+    "string filename" "output.exr"
+    "integer xresolution" [800]
+    "integer yresolution" [600]
+
+LookAt 5 -10 0  # eye
+       5 0 0  # look at point
+       0 0 1    # up vector
+
+Camera "perspective" 
+    "float fov" [60]
+
+WorldBegin
+
+LightSource "infinite" "string mapname" "test.exr"
+
+# Mesh geometry
+AttributeBegin
+  Material "glass" 
+  Shape "sphere" "float radius" [1]
+  
+AttributeEnd
+
+AttributeBegin
+    Material "mirror" 
+    Translate 5 0 0
+    Shape "sphere" "float radius" [1]
+AttributeEnd
+
+
+AttributeBegin
+    Material "matte" 
+    Translate 10 0 0
+    Shape "sphere" "float radius" [1]
+AttributeEnd
+
+WorldEnd

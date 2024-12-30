@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<scene>
+	<integrator type="volume"/>
+	<sampler type="independent">
+		<integer name="sampleCount" value="5000"/>
+	</sampler>
+
+
+	<camera type="perspective">
+		<transform name="toWorld">
+			<lookat target="0,0, 0" 
+			        origin="10, 0, 0"
+			        up="0, 0, 1"/>
+		</transform>
+
+		<!-- Field of view: 80 degrees -->
+		<float name="fov" value="80"/>
+
+		<!-- 1800x1600 pixels -->
+		<integer name="width" value="800"/>
+		<integer name="height" value="600"/>
+	</camera>
+
+
+	<!-- Illuminate using a point light -->
+	<mesh type="sphere">
+	    <point name="center" value="-5,0,0"/>
+	    <float name="radius" value="2"/>
+	    <emitter type="area">
+	        <color name="radiance" value="50, 50, 50"/>
+	    </emitter>
+	    <bsdf type="diffuse">
+	        <color name="albedo" value="1,1,1"/>
+	    </bsdf>
+	</mesh>
+
+
+
+	<mesh type="obj">
+		<string name="filename" value="meshes/dragoon.obj"/>
+    		<transform name="toWorld"> 
+	<scale value = "0.5 ,0.5,0.5"/>
+	<matrix value="
+    0.70710678118  0.70710678118  0  0
+    0.70710678118  -0.70710678118 0  0
+    0  0 1  0
+    0  0  0  1"/>
+    </transform>
+		<bsdf type="diffuse" >
+			<color name="sigma_a" value="0.0021, 0.0041 ,0.0071"/>
+			<color name="s_prime" value="2.19,2.62, 3.00"/>
+			<color name="albedo" value="0.83,0.79, 0.75"/>
+			<float name ="intIOR" value = "1.5"/>
+			<float name ="extIOR" value = "1.0"/>
+		</bsdf>
+	</mesh>
+
+</scene>
+

@@ -1,0 +1,65 @@
+<scene>
+	<!-- Independent sample generator, user-selected samples per pixel -->
+	<sampler type="independent">
+		<integer name="sampleCount" value="1000"/>
+	</sampler>
+
+	<!-- Use the direct illumination integrator -->
+	<integrator type="path_mis"/>
+
+	<!-- Render the scene as viewed by a perspective camera -->
+	<camera type="perspective">
+		<transform name="toWorld">
+			<lookat target="0,0, 0" 
+			        origin="5, 0, 0"
+			        up="0, 0, 1"/>
+		</transform>
+
+		<!-- Field of view: 40 degrees -->
+		<float name="fov" value="100"/>
+
+		<!-- 800x600 pixels -->
+		<integer name="width" value="800"/>
+		<integer name="height" value="600"/>
+	</camera>
+
+
+
+	<!-- Illuminate using a point light -->
+
+
+	<!-- Illuminate using a point light -->
+	<mesh type="sphere">
+	    <point name="center" value="0,1,5"/>
+	    <float name="radius" value="1"/>
+	    <emitter type="area">
+	        <color name="radiance" value="0, 600, 0"/>
+	    </emitter>
+	    <bsdf type="diffuse">
+	        <color name="albedo" value="0,0,0"/>
+	    </bsdf>
+	</mesh>
+
+
+	<mesh type="sphere">
+		<point name="center" value="0 -1 0" />
+		<float name="radius" value="1" />
+
+				<bsdf type="diffuse">
+			<color name="albedo" value="1,1,1"/>
+		</bsdf>
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 1 0" />
+		<float name="radius" value="1" />
+
+				<bsdf type="bssrdf">
+			<color name="albedo" value="1,1,1"/>
+		</bsdf>
+	</mesh>
+
+
+
+
+</scene>

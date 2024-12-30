@@ -1,0 +1,176 @@
+<scene>
+	<!-- Independent sample generator, user-selected samples per pixel -->
+	<sampler type="independent">
+		<integer name="sampleCount" value="200"/>
+	</sampler>
+
+	<!-- Use the direct illumination integrator -->
+	<integrator type="volume"/>
+
+	<!-- Render the scene as viewed by a perspective camera -->
+	<camera type="perspective">
+		<transform name="toWorld">
+			<lookat target="0,0, 0" 
+			        origin="10, 0, 0"
+			        up="0, 0, 1"/>
+		</transform>
+
+		<!-- Field of view: 80 degrees -->
+		<float name="fov" value="80"/>
+
+		<!-- 1800x1600 pixels -->
+		<integer name="width" value="1800"/>
+		<integer name="height" value="1600"/>
+	</camera>
+
+    <medium type="homogeneous" name="skin">
+        <color name="sigmaS" value="0.74,0.88,1.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.48"/>
+        <float name="g" value="0"/>
+    </medium>
+
+    <medium type="homogeneous" name="s1">
+        <color name="sigmaS" value="1.74,1.88,1.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.48"/>
+        <float name="g" value="0"/>
+    </medium>
+
+    <medium type="homogeneous" name="s2">
+        <color name="sigmaS" value="2.74,2.88,2.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.48"/>
+        <float name="g" value="0"/>
+    </medium>
+
+    <medium type="homogeneous" name="s3">
+        <color name="sigmaS" value="3.74,3.88,3.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.48"/>
+        <float name="g" value="0"/>
+    </medium>
+
+
+    <medium type="homogeneous" name="a1">
+        <color name="sigmaS" value="0.74,0.88,1.01"/>
+        <color name="sigmaA" value="0.32,0.57,0.48"/>
+        <float name="g" value="0"/>
+    </medium>
+
+    <medium type="homogeneous" name="a2">
+        <color name="sigmaS" value="0.74,0.88,1.01"/>
+        <color name="sigmaA" value="0.72,0.17,0.48"/>
+        <float name="g" value="0"/>
+    </medium>
+
+    <medium type="homogeneous" name="a3">
+        <color name="sigmaS" value="0.74,0.88,1.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.78"/>
+        <float name="g" value="0"/>
+    </medium>
+
+
+    <medium type="homogeneous" name="g1">
+        <color name="sigmaS" value="0.74,0.88,1.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.48"/>
+        <float name="g" value="-0.8"/>
+    </medium>
+
+    <medium type="homogeneous" name="g2">
+        <color name="sigmaS" value="0.74,0.88,1.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.48"/>
+        <float name="g" value="0.3"/>
+    </medium>
+
+
+    <medium type="homogeneous" name="g3">
+        <color name="sigmaS" value="0.74,0.88,1.01"/>
+        <color name="sigmaA" value="0.32,0.17,0.48"/>
+        <float name="g" value="0.8"/>
+    </medium>
+
+
+
+	<mesh type="sphere">
+		<point name="center" value="0  -3 -2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="skin"/>
+		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 -1 -2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="s1"/>
+		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 1 -2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="s2"/>		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 3 -2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="s3"/>		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0  -3 2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="skin"/>
+		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 -1 2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="a1"/>
+		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 1 2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="a2"/>		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 3 2" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="a3"/>		
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0  -3 0" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="skin"/>
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 -1 0" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="g1"/>
+
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 1 0" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="g2"/>	
+	
+	</mesh>
+
+	<mesh type="sphere">
+		<point name="center" value="0 3 0" />
+		<float name="radius" value="1" />
+		<string name="int_medium" value="g3"/>		
+	</mesh>
+
+
+	<emitter type="EnvMapper">
+		<string name="envfile" value = "external_image/white.exr"/>
+	</emitter>
+
+
+</scene>
+

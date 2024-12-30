@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<scene>
+	<integrator type="volume"/>
+	<sampler type="independent">
+		<integer name="sampleCount" value="2000"/>
+	</sampler>
+
+
+	<camera type="perspective">
+		<transform name="toWorld">
+			<lookat target="0,0, 3" 
+			        origin="20, 0, 3"
+			        up="0, 0, 1"/>
+		</transform>
+
+		<!-- Field of view: 80 degrees -->
+		<float name="fov" value="80"/>
+
+		<!-- 1800x1600 pixels -->
+		<integer name="width" value="800"/>
+		<integer name="height" value="600"/>
+	</camera>
+
+
+
+	<!-- Illuminate using a point light -->
+	<mesh type="sphere">
+	    <point name="center" value="0,0,9"/>
+	    <float name="radius" value="2"/>
+	    <emitter type="area">
+	        <color name="radiance" value="50, 50, 50"/>
+	    </emitter>
+	    <bsdf type="diffuse">
+	        <color name="albedo" value="1,1,1"/>
+	    </bsdf>
+	</mesh>
+
+
+	<mesh type="sphere">
+	    <point name="center" value="0,0,0"/>
+	    <float name="radius" value="5"/>
+		<bsdf type="bssrdf" name="bssrdf"  >
+			<color name="sigma_a" value="0.032, 0.17, 0.48"/>
+			<color name="s_prime" value="0.74, 0.88,  1.01"/>
+			<color name="albedo" value="0.44 ,0.22 ,0.93"/>
+			<float name ="intIOR" value = "1.33"/>
+			<float name ="extIOR" value = "1.0"/>
+		</bsdf>
+
+	</mesh>
+
+</scene>
