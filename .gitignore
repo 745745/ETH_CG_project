@@ -19,3 +19,4 @@ chi2test*.py
 scenes/pa*/**/*.exr
 *.ply
 *.obj
+*.exr
